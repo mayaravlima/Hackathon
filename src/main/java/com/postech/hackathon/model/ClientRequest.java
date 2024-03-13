@@ -51,7 +51,7 @@ public record ClientRequest(
     public Client fromDTO(ClientRequest request) {
         return Client.builder()
                 .name(request.name())
-                .originCountry(request.originCountry().name())
+                .originCountry(request.originCountry())
                 .cpf(request.cpf())
                 .passportNumber(request.passportNumber())
                 .dateOfBirth(request.dateOfBirth())

@@ -21,7 +21,7 @@ public class ClientController {
 
     @PostMapping
     public ResponseEntity<ClientResponse> createClient(@Valid @RequestBody ClientRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(clientService.createClient(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(clientService.createClient(request));
     }
 
     @GetMapping("/{id}")
@@ -44,7 +44,6 @@ public class ClientController {
         clientService.deleteClient(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
 
 
 }

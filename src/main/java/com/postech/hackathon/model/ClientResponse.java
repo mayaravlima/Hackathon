@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.postech.hackathon.entity.Client;
+import com.postech.hackathon.utils.Country;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,7 @@ public record ClientResponse(
         Long id,
         String name,
         @JsonProperty("origin_country")
-        String originCountry,
+        Country originCountry,
         String cpf,
         @JsonProperty("passport_number")
         String passportNumber,

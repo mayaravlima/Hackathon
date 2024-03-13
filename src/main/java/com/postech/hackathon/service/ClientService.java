@@ -1,6 +1,6 @@
 package com.postech.hackathon.service;
 
-
+import com.postech.hackathon.entity.Client;
 import com.postech.hackathon.exception.ClientException;
 import com.postech.hackathon.model.ClientRequest;
 import com.postech.hackathon.model.ClientResponse;
@@ -17,19 +17,30 @@ import java.util.stream.Collectors;
 public class ClientService {
 
     private static final String BRAZIL = "BRAZIL";
-
+    private static final String CLIENT_NOT_FOUND = "Client not found";
+    private static final String CPF_ALREADY_REGISTERED = "CPF already registered";
+    private static final String PASSPORT_ALREADY_REGISTERED = "Passport number already registered";
+    private static final String CPF_REQUIRED = "CPF is required for clients from Brazil";
+    private static final String PASSPORT_REQUIRED = "Passport number is required for clients from other countries";
     private final ClientRepository clientRepository;
 
     public ClientResponse createClient(ClientRequest request) {
+        var newClient = request.fromDTO(request);
         String countryName = request.originCountry().name();
 
         if (BRAZIL.equalsIgnoreCase(countryName)) {
             validateBrazilianClient(request);
+            newClient.setPassportNumber(null);
         } else {
             validateForeignClient(request);
+            newClient.setCpf(null);
         }
 
-        var client = clientRepository.save(request.fromDTO(request));
+        if (clientRepository.existsByEmail(request.email())) {
+            throw new ClientException("Email already registered", HttpStatus.BAD_REQUEST.value());
+        }
+
+        var client = clientRepository.save(newClient);
 
         return ClientResponse.fromEntity(client);
     }
@@ -37,7 +48,7 @@ public class ClientService {
     public ClientResponse getClient(Long id) {
         return clientRepository.findById(id)
                 .map(ClientResponse::fromEntity)
-                .orElseThrow(() -> new ClientException("Client not found", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new ClientException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
     }
 
     public List<ClientResponse> getAllClients() {
@@ -49,40 +60,17 @@ public class ClientService {
 
     public ClientResponse updateClient(Long id, ClientRequest request) {
         var client = clientRepository.findById(id)
-                .orElseThrow(() -> new ClientException("Client not found", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new ClientException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
 
-        String countryName = request.originCountry().name();
-
-        //TODO ajustar validação de CPF e passaporte
-        if (!countryName.equals(client.getOriginCountry())){
-            if (BRAZIL.equalsIgnoreCase(countryName)) {
-                if (client.getCpf() != null && !client.getCpf().equals(request.cpf()) && clientRepository.existsByCpf(request.cpf())) {
-                    throw new ClientException("CPF already registered", HttpStatus.BAD_REQUEST.value());
-                }
-            } else {
-                if (client.getPassportNumber() != null && !client.getPassportNumber().equals(request.passportNumber()) && clientRepository.existsByPassportNumber(request.passportNumber())) {
-                    throw new ClientException("Passport number already registered", HttpStatus.BAD_REQUEST.value());
-                }
-            }
-        }
-
-        client.setName(request.name());
-        client.setOriginCountry(request.originCountry().name());
-        client.setCpf(request.cpf());
-        client.setPassportNumber(request.passportNumber());
-        client.setDateOfBirth(request.dateOfBirth());
-        client.setAddress(request.address());
-        client.setEmail(request.email());
-        client.setPhoneNumber(request.phoneNumber());
+        updateClientDetails(client, request);
 
         return ClientResponse.fromEntity(clientRepository.save(client));
     }
 
     public void deleteClient(Long id) {
-        clientRepository.findById(id).orElseThrow(() -> new ClientException("Client not found", HttpStatus.NOT_FOUND.value()));
+        clientRepository.findById(id).orElseThrow(() -> new ClientException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
         clientRepository.deleteById(id);
     }
-
 
     private void validateBrazilianClient(ClientRequest request) {
         if (request.cpf() == null) {
@@ -90,7 +78,7 @@ public class ClientService {
         }
 
         if (clientRepository.existsByCpf(request.cpf())) {
-            throw new ClientException("CPF already registered", HttpStatus.BAD_REQUEST.value());
+            throw new ClientException(CPF_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
         }
     }
 
@@ -100,7 +88,63 @@ public class ClientService {
         }
 
         if (clientRepository.existsByPassportNumber(request.passportNumber())) {
-            throw new ClientException("Passport number already registered", HttpStatus.BAD_REQUEST.value());
+            throw new ClientException(PASSPORT_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
         }
+    }
+
+    private void validateBrazilianClient(ClientRequest request, Client client) {
+        if (request.cpf() == null) {
+            throw new ClientException(CPF_REQUIRED, HttpStatus.BAD_REQUEST.value());
+        }
+
+        if (client.getCpf() == null || !client.getCpf().equals(request.cpf())) {
+            if (clientRepository.existsByCpf(request.cpf())) {
+                throw new ClientException(CPF_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
+            }
+        }
+    }
+
+    private void validateForeignClient(ClientRequest request, Client client) {
+        if (request.passportNumber() == null) {
+            throw new ClientException(PASSPORT_REQUIRED, HttpStatus.BAD_REQUEST.value());
+        }
+
+        if (client.getPassportNumber() == null || !client.getPassportNumber().equals(request.passportNumber())) {
+            if (clientRepository.existsByPassportNumber(request.passportNumber())) {
+                throw new ClientException(PASSPORT_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
+            }
+        }
+    }
+
+    private void validateEmail(ClientRequest request, Client client) {
+        if (!client.getEmail().equals(request.email())) {
+            if (clientRepository.existsByEmail(request.email())) {
+                throw new ClientException("Email already registered", HttpStatus.BAD_REQUEST.value());
+            }
+        }
+    }
+
+
+    private void updateClientDetails(Client client, ClientRequest request) {
+        String countryName = request.originCountry().name();
+
+        if (BRAZIL.equalsIgnoreCase(countryName)) {
+            validateBrazilianClient(request, client);
+            client.setCpf(request.cpf());
+            client.setPassportNumber(null);
+        } else {
+            validateForeignClient(request, client);
+            client.setPassportNumber(request.passportNumber());
+            client.setCpf(null);
+        }
+
+        validateEmail(request, client);
+
+        client.setName(request.name());
+        client.setOriginCountry(request.originCountry());
+        client.setDateOfBirth(request.dateOfBirth());
+        client.setAddress(request.address());
+        client.setEmail(request.email());
+        client.setPhoneNumber(request.phoneNumber());
     }
 }

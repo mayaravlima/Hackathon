@@ -1,5 +1,6 @@
 package com.postech.hackathon.entity;
 
+import com.postech.hackathon.utils.Country;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,7 +23,7 @@ public class Client {
     private String name;
 
     @Column(name = "origin_country", nullable = false)
-    private String originCountry;
+    private Country originCountry;
 
     @Column(name = "cpf", unique = true)
     private String cpf;
@@ -36,7 +37,7 @@ public class Client {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "phone_number", nullable = false)
