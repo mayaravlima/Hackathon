@@ -1,7 +1,9 @@
 package com.postech.hackathon.config;
 
-import com.postech.hackathon.exception.ClientException;
-import com.postech.hackathon.exception.ValidationErrorResponse;
+import com.postech.hackathon.client.exception.ClientException;
+import com.postech.hackathon.client.exception.ValidationErrorResponse;
+import com.postech.hackathon.optionalService.exception.OfferedServiceException;
+import com.postech.hackathon.optionalService.exception.OptionalItemException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +39,17 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(ClientException.class)
-    public ResponseEntity<Map<String, String>> handleDataError(ClientException error) {
+    public ResponseEntity<Map<String, String>> handleClientException(ClientException error) {
         return ResponseEntity.status(error.getStatus()).body(Map.of("error", error.getMessage()));
+    }
 
+    @ExceptionHandler(OfferedServiceException.class)
+    public ResponseEntity<Map<String, String>> handleOfferedServiceException(OfferedServiceException error) {
+        return ResponseEntity.status(error.getStatus()).body(Map.of("error", error.getMessage()));
+    }
+
+    @ExceptionHandler(OptionalItemException.class)
+    public ResponseEntity<Map<String, String>> handleOptionalItemException(OptionalItemException error) {
+        return ResponseEntity.status(error.getStatus()).body(Map.of("error", error.getMessage()));
     }
 }
