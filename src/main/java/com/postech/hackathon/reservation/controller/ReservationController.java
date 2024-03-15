@@ -48,7 +48,7 @@ public class ReservationController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/available-rooms")
+    @PostMapping("/available-rooms")
     public ResponseEntity<List<RoomResponse>> getAvailableRooms(@RequestBody @Valid SearchAvailableRoomRequest searchAvailableRoomRequest) {
         return ResponseEntity.ok(reservationService.getAvailableRooms(searchAvailableRoomRequest));
     }
