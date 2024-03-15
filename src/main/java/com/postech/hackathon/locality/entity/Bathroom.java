@@ -20,9 +20,7 @@ public class Bathroom {
     @Column(name = "type", nullable = false)
     private String type;
 
-    @Column(name = "description", nullable = false)
-    private String description;
+    @OneToMany(mappedBy = "bathroom", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Facility> facilities;
 
-    @OneToMany(mappedBy = "bathroom")
-    private List<BathroomFacility> bathroomFacility;
 }

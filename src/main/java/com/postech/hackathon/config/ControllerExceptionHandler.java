@@ -1,9 +1,7 @@
 package com.postech.hackathon.config;
 
-import com.postech.hackathon.client.exception.ClientException;
-import com.postech.hackathon.client.exception.ValidationErrorResponse;
-import com.postech.hackathon.optionalService.exception.OfferedServiceException;
-import com.postech.hackathon.optionalService.exception.OptionalItemException;
+import com.postech.hackathon.exception.DomainException;
+import com.postech.hackathon.exception.ValidationErrorResponse;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,18 +36,9 @@ public class ControllerExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    @ExceptionHandler(ClientException.class)
-    public ResponseEntity<Map<String, String>> handleClientException(ClientException error) {
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<Map<String, String>> handleDomainException(DomainException error) {
         return ResponseEntity.status(error.getStatus()).body(Map.of("error", error.getMessage()));
     }
 
-    @ExceptionHandler(OfferedServiceException.class)
-    public ResponseEntity<Map<String, String>> handleOfferedServiceException(OfferedServiceException error) {
-        return ResponseEntity.status(error.getStatus()).body(Map.of("error", error.getMessage()));
-    }
-
-    @ExceptionHandler(OptionalItemException.class)
-    public ResponseEntity<Map<String, String>> handleOptionalItemException(OptionalItemException error) {
-        return ResponseEntity.status(error.getStatus()).body(Map.of("error", error.getMessage()));
-    }
 }

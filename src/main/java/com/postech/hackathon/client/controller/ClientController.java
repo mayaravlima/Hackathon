@@ -4,6 +4,7 @@ package com.postech.hackathon.client.controller;
 import com.postech.hackathon.client.model.ClientRequest;
 import com.postech.hackathon.client.model.ClientResponse;
 import com.postech.hackathon.client.service.ClientService;
+import com.postech.hackathon.locality.model.request.AddressRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,11 @@ public class ClientController {
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
         clientService.deleteClient(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/{id}/address")
+    public ResponseEntity<ClientResponse> updateClientAddress(@PathVariable Long id, @Valid @RequestBody AddressRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(clientService.updateClientAddress(id, request));
     }
 
 

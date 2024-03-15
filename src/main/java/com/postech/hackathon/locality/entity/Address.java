@@ -19,6 +19,15 @@ public class Address {
     @Column(name = "street", nullable = false)
     private String street;
 
+    @Column(name = "number", nullable = false)
+    private String number;
+
+    @Column(name = "complement")
+    private String complement;
+
+    @Column(name = "neighborhood", nullable = false)
+    private String neighborhood;
+
     @Column(name = "city", nullable = false)
     private String city;
 
@@ -28,7 +37,7 @@ public class Address {
     @Column(name = "zipcode", nullable = false)
     private String zipcode;
 
-    @OneToOne(mappedBy = "address")
-    private Locality locality;
+    @Column(name = "country", nullable = false)
+    private String country;
 
 }

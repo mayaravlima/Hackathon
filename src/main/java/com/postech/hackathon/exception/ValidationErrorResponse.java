@@ -1,4 +1,4 @@
-package com.postech.hackathon.client.exception;
+package com.postech.hackathon.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

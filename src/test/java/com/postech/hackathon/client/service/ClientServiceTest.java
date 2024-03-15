@@ -1,11 +1,10 @@
 package com.postech.hackathon.client.service;
 
 import com.postech.hackathon.client.entity.Client;
-import com.postech.hackathon.client.exception.ClientException;
+import com.postech.hackathon.exception.DomainException;
 import com.postech.hackathon.client.model.ClientRequest;
 import com.postech.hackathon.client.model.ClientResponse;
 import com.postech.hackathon.client.repository.ClientRepository;
-import com.postech.hackathon.client.service.ClientService;
 import com.postech.hackathon.client.utils.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -138,7 +137,7 @@ public class ClientServiceTest {
 
         when(clientRepository.existsByEmail(any())).thenReturn(true);
 
-        assertThrows(ClientException.class, () -> clientService.createClient(clientRequest));
+        assertThrows(DomainException.class, () -> clientService.createClient(clientRequest));
     }
 
     @Test
@@ -183,7 +182,7 @@ public class ClientServiceTest {
 
         when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
 
-        assertThrows(ClientException.class, () -> clientService.getClient(clientId));
+        assertThrows(DomainException.class, () -> clientService.getClient(clientId));
     }
 
 }

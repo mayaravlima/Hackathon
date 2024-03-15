@@ -1,10 +1,11 @@
 package com.postech.hackathon.client.service;
 
 import com.postech.hackathon.client.entity.Client;
-import com.postech.hackathon.client.exception.ClientException;
+import com.postech.hackathon.exception.DomainException;
 import com.postech.hackathon.client.model.ClientRequest;
 import com.postech.hackathon.client.model.ClientResponse;
 import com.postech.hackathon.client.repository.ClientRepository;
+import com.postech.hackathon.locality.model.request.AddressRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class ClientService {
         }
 
         if (clientRepository.existsByEmail(request.email())) {
-            throw new ClientException("Email already registered", HttpStatus.BAD_REQUEST.value());
+            throw new DomainException("Email already registered", HttpStatus.BAD_REQUEST.value());
         }
 
         var client = clientRepository.save(newClient);
@@ -48,7 +49,7 @@ public class ClientService {
     public ClientResponse getClient(Long id) {
         return clientRepository.findById(id)
                 .map(ClientResponse::fromEntity)
-                .orElseThrow(() -> new ClientException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new DomainException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
     }
 
     public List<ClientResponse> getAllClients() {
@@ -60,7 +61,7 @@ public class ClientService {
 
     public ClientResponse updateClient(Long id, ClientRequest request) {
         var client = clientRepository.findById(id)
-                .orElseThrow(() -> new ClientException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new DomainException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
 
         updateClientDetails(client, request);
 
@@ -68,50 +69,50 @@ public class ClientService {
     }
 
     public void deleteClient(Long id) {
-        clientRepository.findById(id).orElseThrow(() -> new ClientException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
+        clientRepository.findById(id).orElseThrow(() -> new DomainException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
         clientRepository.deleteById(id);
     }
 
     private void validateBrazilianClient(ClientRequest request) {
         if (request.cpf() == null) {
-            throw new ClientException("CPF is required for clients from Brazil", HttpStatus.BAD_REQUEST.value());
+            throw new DomainException("CPF is required for clients from Brazil", HttpStatus.BAD_REQUEST.value());
         }
 
         if (clientRepository.existsByCpf(request.cpf())) {
-            throw new ClientException(CPF_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
+            throw new DomainException(CPF_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
         }
     }
 
     private void validateForeignClient(ClientRequest request) {
         if (request.passportNumber() == null) {
-            throw new ClientException("Passport number is required for clients from other countries", HttpStatus.BAD_REQUEST.value());
+            throw new DomainException("Passport number is required for clients from other countries", HttpStatus.BAD_REQUEST.value());
         }
 
         if (clientRepository.existsByPassportNumber(request.passportNumber())) {
-            throw new ClientException(PASSPORT_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
+            throw new DomainException(PASSPORT_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
         }
     }
 
     private void validateBrazilianClient(ClientRequest request, Client client) {
         if (request.cpf() == null) {
-            throw new ClientException(CPF_REQUIRED, HttpStatus.BAD_REQUEST.value());
+            throw new DomainException(CPF_REQUIRED, HttpStatus.BAD_REQUEST.value());
         }
 
         if (client.getCpf() == null || !client.getCpf().equals(request.cpf())) {
             if (clientRepository.existsByCpf(request.cpf())) {
-                throw new ClientException(CPF_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
+                throw new DomainException(CPF_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
             }
         }
     }
 
     private void validateForeignClient(ClientRequest request, Client client) {
         if (request.passportNumber() == null) {
-            throw new ClientException(PASSPORT_REQUIRED, HttpStatus.BAD_REQUEST.value());
+            throw new DomainException(PASSPORT_REQUIRED, HttpStatus.BAD_REQUEST.value());
         }
 
         if (client.getPassportNumber() == null || !client.getPassportNumber().equals(request.passportNumber())) {
             if (clientRepository.existsByPassportNumber(request.passportNumber())) {
-                throw new ClientException(PASSPORT_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
+                throw new DomainException(PASSPORT_ALREADY_REGISTERED, HttpStatus.BAD_REQUEST.value());
             }
         }
     }
@@ -119,7 +120,7 @@ public class ClientService {
     private void validateEmail(ClientRequest request, Client client) {
         if (!client.getEmail().equals(request.email())) {
             if (clientRepository.existsByEmail(request.email())) {
-                throw new ClientException("Email already registered", HttpStatus.BAD_REQUEST.value());
+                throw new DomainException("Email already registered", HttpStatus.BAD_REQUEST.value());
             }
         }
     }
@@ -143,8 +144,20 @@ public class ClientService {
         client.setName(request.name());
         client.setOriginCountry(request.originCountry());
         client.setDateOfBirth(request.dateOfBirth());
-        client.setAddress(request.address());
         client.setEmail(request.email());
         client.setPhoneNumber(request.phoneNumber());
+    }
+
+    public ClientResponse updateClientAddress(Long id, AddressRequest request) {
+        var client = clientRepository.findById(id)
+                .orElseThrow(() -> new DomainException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
+
+
+        var newAddress = request.toEntity();
+        newAddress.setId(client.getAddress().getId());
+
+        client.setAddress(newAddress);
+
+        return ClientResponse.fromEntity(clientRepository.save(client));
     }
 }

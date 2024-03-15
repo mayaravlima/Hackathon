@@ -20,7 +20,13 @@ public class Building {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "building")
-    private List<LocalityBuilding> localityBuildings;
+    @OneToMany(mappedBy = "building", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Room> rooms;
+
+    @ManyToOne
+    @JoinColumn(name = "id_locality")
+    private Locality locality;
+
+
 
 }

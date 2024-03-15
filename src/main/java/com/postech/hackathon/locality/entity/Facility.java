@@ -15,6 +15,10 @@ public class Facility {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "description", nullable = false)
-    private String description;
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "id_bathroom", referencedColumnName = "id")
+    private Bathroom bathroom;
 }

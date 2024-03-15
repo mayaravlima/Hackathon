@@ -1,6 +1,7 @@
 package com.postech.hackathon.client.entity;
 
 import com.postech.hackathon.client.utils.Country;
+import com.postech.hackathon.locality.entity.Address;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,8 +35,9 @@ public class Client {
     @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
-    @Column(name = "address", nullable = false)
-    private String address;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private Address address;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;

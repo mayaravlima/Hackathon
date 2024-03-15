@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.postech.hackathon.client.entity.Client;
 import com.postech.hackathon.client.utils.Country;
+import com.postech.hackathon.locality.model.request.AddressRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.br.CPF;
 
@@ -35,8 +37,8 @@ public record ClientRequest(
         LocalDate dateOfBirth,
 
         @NotNull(message = "Address can't be empty or null")
-        @Size(min = 5, max = 100, message = "Address must be between 5 and 100 characters")
-        String address,
+        @Valid
+        AddressRequest address,
 
         @NotNull(message = "Email can't be empty or null")
         @Email(message = "Invalid email")
@@ -55,7 +57,7 @@ public record ClientRequest(
                 .cpf(request.cpf())
                 .passportNumber(request.passportNumber())
                 .dateOfBirth(request.dateOfBirth())
-                .address(request.address())
+                .address(request.address().toEntity())
                 .email(request.email())
                 .phoneNumber(request.phoneNumber())
                 .build();

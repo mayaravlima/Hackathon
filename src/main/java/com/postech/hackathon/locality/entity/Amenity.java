@@ -20,4 +20,8 @@ public class Amenity {
 
     @Column(name = "quantity", nullable = false)
     private int quantity;
+
+    @ManyToOne
+    @JoinColumn(name = "id_locality")
+    private Locality locality;
 }

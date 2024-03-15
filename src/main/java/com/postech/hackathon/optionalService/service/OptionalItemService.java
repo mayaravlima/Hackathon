@@ -1,7 +1,7 @@
 package com.postech.hackathon.optionalService.service;
 
 
-import com.postech.hackathon.optionalService.exception.OptionalItemException;
+import com.postech.hackathon.exception.DomainException;
 import com.postech.hackathon.optionalService.model.OptionalItemRequest;
 import com.postech.hackathon.optionalService.model.OptionalItemResponse;
 import com.postech.hackathon.optionalService.repository.OptionalItemRepository;
@@ -26,20 +26,20 @@ public class OptionalItemService {
     public OptionalItemResponse getOptionalItem(Long id) {
         return optionalItemRepository.findById(id)
                 .map(OptionalItemResponse::fromEntity)
-                .orElseThrow(() -> new OptionalItemException("Item not found", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new DomainException("Item not found", HttpStatus.NOT_FOUND.value()));
     }
 
 
     public void deleteOptionalItem(Long id) {
         if (!optionalItemRepository.existsById(id)) {
-            throw new OptionalItemException("Item not found", HttpStatus.NOT_FOUND.value());
+            throw new DomainException("Item not found", HttpStatus.NOT_FOUND.value());
         }
         optionalItemRepository.deleteById(id);
     }
 
     public OptionalItemResponse updateOptionalItem(Long id, OptionalItemRequest request) {
         var item = optionalItemRepository.findById(id)
-                .orElseThrow(() -> new OptionalItemException("Item not found", HttpStatus.NOT_FOUND.value()));
+                .orElseThrow(() -> new DomainException("Item not found", HttpStatus.NOT_FOUND.value()));
 
         item.setPrice(request.price());
         item.setName(request.name());
