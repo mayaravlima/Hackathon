@@ -150,6 +150,7 @@ public class ClientService {
 
     public ClientResponse updateClientAddress(Long id, AddressRequest request) {
         var client = clientRepository.findById(id)
+
                 .orElseThrow(() -> new DomainException(CLIENT_NOT_FOUND, HttpStatus.NOT_FOUND.value()));
 
 
