@@ -1,8 +1,8 @@
 mysql:
-  username: root
-  password: 123456
-  schema: client
-  url: localhost:3306
+  username: mysqluser
+  password: Mysql123#@!
+  schema: booking-database
+  url: mysql:3306
 
 spring:
   datasource:
@@ -21,6 +21,10 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
   mail:
     host: smtp.gmail.com
     port: 587
