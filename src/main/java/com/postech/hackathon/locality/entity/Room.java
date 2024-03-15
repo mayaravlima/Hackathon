@@ -1,5 +1,6 @@
 package com.postech.hackathon.locality.entity;
 
+import com.postech.hackathon.reservation.entity.Reservation;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,8 +40,15 @@ public class Room {
     @Column(name = "quantity", nullable = false)
     private int quantity;
 
+    @Column(name = "active", columnDefinition = "boolean default true")
+    private boolean active;
+
     @ManyToOne
     @JoinColumn(name = "id_building")
     private Building building;
+
+    @ManyToMany(mappedBy = "rooms", fetch = FetchType.EAGER)
+    private List<Reservation> reservations;
+
 
 }

@@ -3,9 +3,13 @@ package com.postech.hackathon.locality.service;
 import com.postech.hackathon.exception.DomainException;
 import com.postech.hackathon.locality.model.request.BuildingRequest;
 import com.postech.hackathon.locality.model.response.BuildingResponse;
+import com.postech.hackathon.locality.model.response.RoomResponse;
 import com.postech.hackathon.locality.repository.BuildingRepository;
 import com.postech.hackathon.locality.repository.LocalityRepository;
+import com.postech.hackathon.locality.repository.RoomRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +22,7 @@ public class BuildingService {
 
     private BuildingRepository buildingRepository;
     private LocalityRepository localityRepository;
+    private RoomRepository roomRepository;
 
     public BuildingResponse createBuilding(BuildingRequest buildingRequest, Long idLocality) {
 
@@ -56,5 +61,10 @@ public class BuildingService {
         building.setName(request.name());
 
         return BuildingResponse.fromEntity(buildingRepository.save(building));
+    }
+
+    public Page<RoomResponse> getRoomsByBuildingId(Long idBuilding, int page, int size) {
+        return roomRepository.findByBuildingId(idBuilding, PageRequest.of(page, size))
+                .map(RoomResponse::fromEntity);
     }
 }

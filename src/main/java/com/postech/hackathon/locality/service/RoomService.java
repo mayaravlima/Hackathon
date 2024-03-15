@@ -52,6 +52,8 @@ public class RoomService {
         room.setCapacity(request.capacity());
         room.setPrice(request.price());
         room.setQuantity(request.quantity());
+        room.setActive(request.active());
         return RoomResponse.fromEntity(roomRepository.save(room));
     }
+
 }

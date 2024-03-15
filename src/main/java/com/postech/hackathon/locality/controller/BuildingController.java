@@ -2,8 +2,10 @@ package com.postech.hackathon.locality.controller;
 
 import com.postech.hackathon.locality.model.request.BuildingRequest;
 import com.postech.hackathon.locality.model.response.BuildingResponse;
+import com.postech.hackathon.locality.model.response.RoomResponse;
 import com.postech.hackathon.locality.service.BuildingService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +41,14 @@ public class BuildingController {
     @PutMapping("/{id}")
     public ResponseEntity<BuildingResponse> updateBuilding(@PathVariable Long id, @RequestBody BuildingRequest request) {
         return ResponseEntity.ok(buildingService.updateBuilding(id, request));
+    }
+
+    @GetMapping("/{buildingId}/rooms")
+    public Page<RoomResponse> getRoomsByBuildingPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @PathVariable Long buildingId) {
+        return buildingService.getRoomsByBuildingId(buildingId, page, size);
     }
 
 }

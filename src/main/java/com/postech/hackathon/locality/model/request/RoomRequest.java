@@ -31,7 +31,9 @@ public record RoomRequest(
         double price,
 
         @Positive(message = "Quantity must be positive")
-        int quantity
+        int quantity,
+
+        boolean active
 ) {
         public Room toEntity() {
                 return Room.builder()
@@ -42,6 +44,7 @@ public record RoomRequest(
                         .bathroom(this.bathroom().toEntity())
                         .price(this.price())
                         .quantity(this.quantity())
+                        .active(this.active())
                         .build();
         }
 }

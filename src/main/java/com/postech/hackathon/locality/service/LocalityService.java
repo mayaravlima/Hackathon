@@ -1,10 +1,14 @@
 package com.postech.hackathon.locality.service;
 
+import com.postech.hackathon.exception.DomainException;
 import com.postech.hackathon.locality.entity.*;
 import com.postech.hackathon.locality.model.request.*;
 import com.postech.hackathon.locality.model.response.*;
 import com.postech.hackathon.locality.repository.*;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +61,28 @@ public class LocalityService {
         return localityRepository.findById(id)
                 .map(LocalityResponse::fromEntity)
                 .orElseThrow();
+    }
+
+    public Page<BuildingResponse> getBuildingsByLocalityIdPaginated(Long localityId, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        return buildingRepository.findByLocalityId(localityId, pageable).map(BuildingResponse::fromEntity);
+    }
+
+    public void deleteLocality(Long id) {
+        if (!localityRepository.existsById(id)) {
+            throw new DomainException("Locality not found", HttpStatus.NOT_FOUND.value());
+        }
+        localityRepository.deleteById(id);
+    }
+
+    public LocalityResponse updateLocality(Long id, LocalityRequest request) {
+        return localityRepository.findById(id)
+                .map(localityEntity -> {
+                    localityEntity.setName(request.name());
+                    localityEntity.setAddress(getAddress(request));
+                    return LocalityResponse.fromEntity(localityRepository.save(localityEntity));
+                })
+                .orElseThrow(() -> new DomainException("Locality not found", HttpStatus.NOT_FOUND.value()));
     }
 
     private Locality createLocalityEntity(LocalityRequest localityRequest) {
