@@ -129,6 +129,9 @@ public class ReservationService {
     }
 
     public List<RoomResponse> getAvailableRooms(SearchAvailableRoomRequest request) {
+        clientRepository.findById(request.clientId()).orElseThrow(
+                () -> new DomainException("Client not found with id: " + request.clientId(), HttpStatus.NOT_FOUND.value())
+        );
         if (isValidDates(request.startDate(), request.endDate())) {
             throw new DomainException("Invalid dates", HttpStatus.BAD_REQUEST.value());
         }
@@ -137,6 +140,7 @@ public class ReservationService {
 
         return rooms.stream()
                 .filter(room -> checkRoomAvailability(room, request.startDate(), request.endDate()))
+                .filter(Room::isActive)
                 .map(RoomResponse::fromEntity)
                 .toList();
     }
@@ -148,7 +152,6 @@ public class ReservationService {
 
         reservationRepository.delete(reservation);
     }
-
 
 
     private boolean checkRoomAvailability(Reservation newReservation) {

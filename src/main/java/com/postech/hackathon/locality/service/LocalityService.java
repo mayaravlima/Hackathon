@@ -134,6 +134,7 @@ public class LocalityService {
                 .quantity(roomRequest.quantity())
                 .building(savedBuilding)
                 .bathroom(bathroom)
+                .active(roomRequest.active())
                 .build();
         Room savedRoom = roomRepository.save(room);
 
@@ -155,7 +156,8 @@ public class LocalityService {
                 beds,
                 BathroomResponse.fromEntity(savedRoom.getBathroom()),
                 savedRoom.getPrice(),
-                savedRoom.getQuantity()
+                savedRoom.getQuantity(),
+                savedRoom.isActive()
         );
 
     }

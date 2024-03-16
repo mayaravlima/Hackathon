@@ -18,7 +18,9 @@ public record RoomResponse(
 
         double price,
 
-        int quantity
+        int quantity,
+
+        boolean active
 ) {
 
     public static RoomResponse fromEntity(Room room) {
@@ -30,7 +32,8 @@ public record RoomResponse(
                 room.getBeds().stream().map(BedResponse::fromEntity).toList(),
                 Objects.nonNull(room.getBathroom()) ? BathroomResponse.fromEntity(room.getBathroom()) : null,
                 room.getPrice(),
-                room.getQuantity()
+                room.getQuantity(),
+                room.isActive()
         );
     }
 }
